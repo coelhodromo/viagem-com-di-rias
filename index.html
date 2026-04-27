@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Custo de Transporte - FMVZ USP</title>
+
+<style>
+body { font-family: Arial; margin:0; background:#ffffff; }
+
+header { background:#fff; padding:10px; text-align:center; }
+
+nav { display:flex; background:#004080; }
+
+nav button {
+  flex:1;
+  padding:14px;
+  border:none;
+  background:#004080;
+  color:#fff;
+  cursor:pointer;
+}
+
+nav button.active { background:#0066cc; }
+
+section { display:none; padding:15px; }
+section.active { display:block; }
+
+.card {
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+input, select {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  font-size:16px;
+}
+
+button.calc {
+  margin-top:12px;
+  padding:14px;
+  width:100%;
+  border:none;
+  background:#0066cc;
+  color:#fff;
+  border-radius:8px;
+}
+
+.info-btn {
+  background:#95a5a6;
+  margin-top:8px;
+  border:none;
+  padding:10px;
+  width:100%;
+  color:#fff;
+  border-radius:8px;
+}
+
+.descricao {
+  display:none;
+  font-size:14px;
+  color:#555;
+  margin-top:8px;
+  background:#f9f9f9;
+  padding:10px;
+  border-radius:8px;
+}
+
+.resultado {
+  margin-top:12px;
+  font-weight:bold;
+  font-size:18px;
+  text-align:center;
+}
+
+footer {
+  text-align:center;
+  padding:15px;
+  font-size:12px;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <img src="header.png" style="max-width:100%;">
+  <h2 style="color:#003366;">Simulador de Custo de Transporte</h2>
+</header>
+
+<nav>
+  <button onclick="trocar(event,'viagem')" class="active">Viagem</button>
+  <button onclick="trocar(event,'caminhao')">Caminhão</button>
+  <button onclick="trocar(event,'diarias')">Diárias</button>
+</nav>
+
+<!-- VIAGEM -->
+<section id="viagem" class="active">
+  <div class="card">
+    <h3>Transporte por KM</h3>
+
+    <button class="info-btn" onclick="toggleInfo(this)">ℹ️ Informações</button>
+    <div class="descricao">
+      Distância total (ida e volta).<br>
+      Valor por km conforme tipo de veículo.<br>
+      Diária: R$ <span id="infoDiaria1"></span>
+    </div>
+
+    <input id="km" placeholder="Km total (ida e volta)">
+
+    <select id="tipoVeiculo">
+      <option value="2">Diesel (4x4, van, micro, ônibus)</option>
+      <option value="1">Álcool (demais veículos)</option>
+    </select>
+
+    <input id="diariasV" placeholder="Quantidade de diárias">
+
+    <button class="calc" onclick="calcViagem()">Calcular</button>
+    <div class="resultado" id="resViagem"></div>
+  </div>
+</section>
+
+<!-- CAMINHÃO -->
+<section id="caminhao">
+  <div class="card">
+    <h3>Transporte por Hora</h3>
+
+    <button class="info-btn" onclick="toggleInfo(this)">ℹ️ Informações</button>
+    <div class="descricao">
+      Valor hora: R$ <span id="infoHora"></span><br>
+      Diária: R$ <span id="infoDiaria2"></span>
+    </div>
+
+    <input id="horas" placeholder="Horas utilizadas">
+    <input id="diariasC" placeholder="Quantidade de diárias">
+
+    <button class="calc" onclick="calcCaminhao()">Calcular</button>
+    <div class="resultado" id="resCaminhao"></div>
+  </div>
+</section>
+
+<!-- DIÁRIAS -->
+<section id="diarias">
+  <div class="card">
+    <h3>Cálculo de Diárias</h3>
+
+    <button class="info-btn" onclick="toggleInfo(this)">ℹ️ Informações</button>
+    <div class="descricao">
+      A diária só é devida após 8h de viagem.<br>
+      Pernoite paga em dobro.<br>
+      Valor: R$ <span id="infoDiaria3"></span>
+    </div>
+
+    <label>Saída</label>
+    <input type="datetime-local" id="saida">
+
+    <label>Retorno</label>
+    <input type="datetime-local" id="retorno">
+
+    <label>Pernoite?</label>
+    <select id="pernoite">
+      <option value="0">Não</option>
+      <option value="1">Sim</option>
+    </select>
+
+    <button class="calc" onclick="calcDiarias()">Calcular</button>
+    <div class="resultado" id="resDiarias"></div>
+  </div>
+</section>
+
+<footer>
+  FMVZ USP - Simulação de custos
+</footer>
+
+<script>
+
+const DIARIA = 192.10;
+const VALOR_HORA_CAMINHAO = 135;
+
+// navegação
+function trocar(e,id){
+ document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+ e.target.classList.add('active');
+}
+
+// info
+function toggleInfo(btn){
+ let d = btn.nextElementSibling;
+ d.style.display = d.style.display==="block"?"none":"block";
+}
+
+// viagem
+function calcViagem(){
+ let km = parseFloat(document.getElementById("km").value);
+ let custo = parseFloat(document.getElementById("tipoVeiculo").value);
+ let diarias = parseFloat(document.getElementById("diariasV").value);
+
+ if(isNaN(km) || isNaN(diarias)){
+  document.getElementById("resViagem").innerText="Preencha os campos!";
+  return;
+ }
+
+ let total = (km*custo)+(diarias*DIARIA);
+ document.getElementById("resViagem").innerText =
+  "R$ "+total.toFixed(2);
+}
+
+// caminhão
+function calcCaminhao(){
+ let h = parseFloat(document.getElementById("horas").value);
+ let d = parseFloat(document.getElementById("diariasC").value);
+
+ if(isNaN(h) || isNaN(d)){
+  document.getElementById("resCaminhao").innerText="Preencha os campos!";
+  return;
+ }
+
+ let total = (h*VALOR_HORA_CAMINHAO)+(d*DIARIA);
+ document.getElementById("resCaminhao").innerText =
+  "R$ "+total.toFixed(2);
+}
+
+// diárias (regra correta)
+function calcDiarias(){
+ let inicio = new Date(document.getElementById("saida").value);
+ let fim = new Date(document.getElementById("retorno").value);
+ let pernoite = parseInt(document.getElementById("pernoite").value);
+
+ if(!inicio || !fim || fim <= inicio){
+  document.getElementById("resDiarias").innerText="Preencha corretamente!";
+  return;
+ }
+
+ let horas = (fim - inicio) / (1000 * 60 * 60);
+
+ let diarias = 0;
+
+ if(horas > 8){
+   diarias = 1;
+ }
+
+ if(pernoite === 1){
+   diarias = 2;
+ }
+
+ let total = diarias * DIARIA;
+
+ document.getElementById("resDiarias").innerText =
+  horas.toFixed(1)+"h → "+diarias+" diária(s) → R$ "+total.toFixed(2);
+}
+
+// auto info
+window.onload = function(){
+ document.getElementById("infoDiaria1").innerText = DIARIA.toFixed(2);
+ document.getElementById("infoDiaria2").innerText = DIARIA.toFixed(2);
+ document.getElementById("infoDiaria3").innerText = DIARIA.toFixed(2);
+ document.getElementById("infoHora").innerText = VALOR_HORA_CAMINHAO.toFixed(2);
+};
+
+</script>
+
+</body>
+</html>
