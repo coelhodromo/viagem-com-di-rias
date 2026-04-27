@@ -229,9 +229,9 @@ function calcCaminhao(){
 
 // diárias (regra correta)
 function calcDiarias(){
+
  let inicio = new Date(document.getElementById("saida").value);
  let fim = new Date(document.getElementById("retorno").value);
- let pernoite = parseInt(document.getElementById("pernoite").value);
 
  if(!inicio || !fim || fim <= inicio){
   document.getElementById("resDiarias").innerText="Preencha corretamente!";
@@ -240,20 +240,21 @@ function calcDiarias(){
 
  let horas = (fim - inicio) / (1000 * 60 * 60);
 
+ // conta dias (pernoites)
+ let noites = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24));
+
  let diarias = 0;
 
- if(horas > 8){
+ if(noites > 0){
+   diarias = noites * 2; // cada noite = 2 diárias
+ } else if(horas > 8){
    diarias = 1;
- }
-
- if(pernoite === 1){
-   diarias = 2;
  }
 
  let total = diarias * DIARIA;
 
  document.getElementById("resDiarias").innerText =
-  horas.toFixed(1)+"h → "+diarias+" diária(s) → R$ "+total.toFixed(2);
+  horas.toFixed(1)+"h → "+noites+" pernoite(s) → "+diarias+" diária(s) → R$ "+total.toFixed(2);
 }
 
 // auto info
