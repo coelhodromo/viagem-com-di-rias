@@ -155,7 +155,13 @@ footer {
       Pernoite paga em dobro.<br>
       Valor: R$ <span id="infoDiaria3"></span>
     </div>
-
+    
+<select id="categoria">
+  <option value="tec">Técnico Administrativo</option>
+  <option value="sup">Servidor Nível Superior</option>
+  <option value="prof">Professor</option>
+</select>
+    
     <label>Saída</label>
     <input type="datetime-local" id="saida">
 
@@ -181,6 +187,11 @@ footer {
 </footer>
 
 <script>
+  const DIARIAS = {
+  tec: { simples: 192.10, completa: 384.20 },
+  sup: { simples: 288.15, completa: 576.30 },
+  prof: { simples: 364.99, completa: 729.98 }
+};
 
 const DIARIA = 192.10;
 const VALOR_HORA_CAMINHAO = 135;
@@ -236,6 +247,7 @@ function calcDiarias(){
  let inicio = new Date(document.getElementById("saida").value);
  let fim = new Date(document.getElementById("retorno").value);
  let pernoite = document.getElementById("pernoite").value;
+ let categoria = document.getElementById("categoria").value;
 
  if(!inicio || !fim || fim <= inicio){
   document.getElementById("resDiarias").innerText="Preencha corretamente!";
@@ -244,27 +256,23 @@ function calcDiarias(){
 
  let horas = (fim - inicio) / (1000 * 60 * 60);
 
- let diariaSimples = 192.10;
- let diariaCompleta = 384.20;
+ let valores = DIARIAS[categoria];
 
  let total = 0;
  let texto = "";
 
  if(pernoite === "1"){
-   // conta pernoites reais
    let noites = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24));
-   total = noites * diariaCompleta;
+   total = noites * valores.completa;
    texto = noites + " pernoite(s) → diária completa";
-
  } else {
 
    if(horas <= 8){
      texto = "sem diária";
      total = 0;
    } else {
-     // conta dias diferentes
      let dias = Math.ceil((fim - inicio) / (1000 * 60 * 60 * 24));
-     total = dias * diariaSimples;
+     total = dias * valores.simples;
      texto = dias + " dia(s) → diária simples";
    }
 
