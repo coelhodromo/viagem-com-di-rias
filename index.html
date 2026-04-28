@@ -232,6 +232,7 @@ function calcDiarias(){
 
  let inicio = new Date(document.getElementById("saida").value);
  let fim = new Date(document.getElementById("retorno").value);
+ let pernoite = document.getElementById("pernoite").value;
 
  if(!inicio || !fim || fim <= inicio){
   document.getElementById("resDiarias").innerText="Preencha corretamente!";
@@ -240,23 +241,30 @@ function calcDiarias(){
 
  let horas = (fim - inicio) / (1000 * 60 * 60);
 
- // conta pernoites (viradas de dia)
- let pernoites = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24));
-
  let diariaSimples = 192.10;
  let diariaCompleta = 384.20;
 
  let total = 0;
  let texto = "";
 
- if(pernoites > 0){
-   total = pernoites * diariaCompleta;
-   texto = pernoites + " pernoite(s) → diária completa";
- } else if(horas > 8){
-   total = diariaSimples;
-   texto = "diária simples";
+ if(pernoite === "1"){
+   // conta pernoites reais
+   let noites = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24));
+   total = noites * diariaCompleta;
+   texto = noites + " pernoite(s) → diária completa";
+
  } else {
-   texto = "sem diária";
+
+   if(horas <= 8){
+     texto = "sem diária";
+     total = 0;
+   } else {
+     // conta dias diferentes
+     let dias = Math.ceil((fim - inicio) / (1000 * 60 * 60 * 24));
+     total = dias * diariaSimples;
+     texto = dias + " dia(s) → diária simples";
+   }
+
  }
 
  document.getElementById("resDiarias").innerText =
