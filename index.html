@@ -240,21 +240,27 @@ function calcDiarias(){
 
  let horas = (fim - inicio) / (1000 * 60 * 60);
 
- // conta dias (pernoites)
- let noites = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24));
+ // conta pernoites (viradas de dia)
+ let pernoites = Math.floor((fim - inicio) / (1000 * 60 * 60 * 24));
 
- let diarias = 0;
+ let diariaSimples = 192.10;
+ let diariaCompleta = 384.20;
 
- if(noites > 0){
-   diarias = noites * 2; // cada noite = 2 diárias
+ let total = 0;
+ let texto = "";
+
+ if(pernoites > 0){
+   total = pernoites * diariaCompleta;
+   texto = pernoites + " pernoite(s) → diária completa";
  } else if(horas > 8){
-   diarias = 1;
+   total = diariaSimples;
+   texto = "diária simples";
+ } else {
+   texto = "sem diária";
  }
 
- let total = diarias * DIARIA;
-
  document.getElementById("resDiarias").innerText =
-  horas.toFixed(1)+"h → "+noites+" pernoite(s) → "+diarias+" diária(s) → R$ "+total.toFixed(2);
+   horas.toFixed(1)+"h → "+texto+" → R$ "+total.toFixed(2);
 }
 
 // auto info
